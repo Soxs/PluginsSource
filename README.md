@@ -1,3 +1,3 @@
-# ThePlug Official Private Repository
+# Soxs Free Plugins Source
 
-This is a collection of official plugins.
+This is a collection of my free plugins source code.
