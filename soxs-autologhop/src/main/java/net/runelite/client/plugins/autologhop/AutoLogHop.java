@@ -8,6 +8,7 @@ import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -28,7 +29,7 @@ import java.util.List;
 @PluginDescriptor(
 	name = "AutoLogHop",
 	description = "Auto hops/logs out when another player is seen.",
-	tags = {"logout", "hop worlds", "auto log", "auto hop"},
+	tags = {"logout", "hop worlds", "auto log", "auto hop", "soxs"},
 	enabledByDefault = false,
 	hidden = false
 )
@@ -78,8 +79,20 @@ public class AutoLogHop extends Plugin
 
 	@Subscribe
 	public void onGameTick(GameTick event){
-		if (nearPlayer())
-		{
+		if (config.disableWildyChecks() || inWilderness()) {
+			if (nearPlayer()) {
+				if (config.hop())
+					hopToWorld(getValidWorld());
+				else {
+					logout();
+				}
+			}
+		}
+	}
+
+	@Subscribe
+	public void onPlayerSpawned(PlayerSpawned event) {
+		if (config.disableWildyChecks() || inWilderness()) {
 			if (config.hop())
 				hopToWorld(getValidWorld());
 			else {
@@ -114,7 +127,8 @@ public class AutoLogHop extends Plugin
 			if (w.getTypes().contains(net.runelite.http.api.worlds.WorldType.HIGH_RISK) ||
 					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.PVP) ||
 					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.SKILL_TOTAL) ||
-					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.BOUNTY))
+					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.BOUNTY) ||
+					!w.getTypes().contains(net.runelite.http.api.worlds.WorldType.MEMBERS))
 				continue;
 			return w.getId();
 		}
@@ -174,6 +188,11 @@ public class AutoLogHop extends Plugin
 				-1,
 				param1
 		);
+	}
+
+	public boolean inWilderness()
+	{
+		return client.getVar(Varbits.IN_WILDERNESS) == 1;
 	}
 
 }

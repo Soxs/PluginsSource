@@ -26,4 +26,20 @@ public interface AutoLogHopConfig extends Config
         return false;
     }
 
+<<<<<<< Updated upstream
 }
+=======
+    @ConfigItem(
+            keyName = "disableWildyChecks",
+            name = "Disable Wilderness Checks",
+            description = "Disable wilderness checks. Makes plugin work everywhere.",
+            position = 12,
+            section = title
+    )
+    default boolean disableWildyChecks()
+    {
+        return false;
+    }
+
+}
+>>>>>>> Stashed changes

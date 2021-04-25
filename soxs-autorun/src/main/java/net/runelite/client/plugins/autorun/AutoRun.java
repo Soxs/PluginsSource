@@ -24,9 +24,9 @@ import java.util.concurrent.ExecutorService;
 
 @Extension
 @PluginDescriptor(
-	name = "AutoRunEnable",
-	description = "Auto enables run.",
-	tags = {"run", "enable run", "run energy"},
+	name = "AutoRunEnabler",
+	description = "Automatically enables run.",
+	tags = {"run", "enable run", "run energy", "soxs"},
 	enabledByDefault = true,
 	hidden = false
 )
@@ -101,8 +101,13 @@ public class AutoRun extends Plugin
 	{
 		executor.submit(() ->
 		{
-			Widget depositInventoryWidget = client.getWidget(WidgetInfo.MINIMAP_TOGGLE_RUN_ORB);
-			client.invokeMenuAction("", "", 1, MenuAction.CC_OP.getId(), -1, depositInventoryWidget.getId());
+			try {
+				Thread.sleep(randInt(0, 599));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			Widget runOrb = client.getWidget(WidgetInfo.MINIMAP_TOGGLE_RUN_ORB);
+			client.invokeMenuAction("", "", 1, MenuAction.CC_OP.getId(), -1, runOrb.getId());
 		});
 	}
 

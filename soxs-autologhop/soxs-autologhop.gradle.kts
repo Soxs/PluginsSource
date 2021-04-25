@@ -23,10 +23,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.3"
+version = "0.0.4"
 
-project.extra["PluginName"] = "Soxs AutoLogHop"
-project.extra["PluginDescription"] = "Soxs' Auto Logout / Hop"
+project.extra["PluginName"] = "AutoLogHop"
+project.extra["PluginDescription"] = "Automatically Logout / Hop"
 
 
 tasks {
