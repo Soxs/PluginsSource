@@ -26,9 +26,7 @@ public interface AutoLogHopConfig extends Config
         return false;
     }
 
-<<<<<<< Updated upstream
-}
-=======
+
     @ConfigItem(
             keyName = "disableWildyChecks",
             name = "Disable Wilderness Checks",
@@ -42,4 +40,3 @@ public interface AutoLogHopConfig extends Config
     }
 
 }
->>>>>>> Stashed changes
