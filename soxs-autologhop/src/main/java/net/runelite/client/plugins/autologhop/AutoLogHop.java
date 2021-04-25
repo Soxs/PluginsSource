@@ -92,6 +92,9 @@ public class AutoLogHop extends Plugin
 
 	@Subscribe
 	public void onPlayerSpawned(PlayerSpawned event) {
+		if (event.getPlayer() == client.getLocalPlayer())
+			return;
+
 		if (config.disableWildyChecks() || inWilderness()) {
 			if (config.hop())
 				hopToWorld(getValidWorld());
