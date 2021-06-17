@@ -12,9 +12,6 @@ import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.chat.ChatColorType;
-import net.runelite.client.chat.ChatMessageBuilder;
-import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
@@ -28,6 +25,8 @@ import org.pf4j.Extension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Extension
 @PluginDescriptor(
@@ -63,6 +62,9 @@ public class AutoLogHop extends Plugin
 	@Inject
 	private WorldService worldService;
 
+	@Inject
+	private ExecutorService executor;
+
 	@Provides
 	AutoLogHopConfig getConfig(ConfigManager configManager)
 	{
@@ -83,13 +85,9 @@ public class AutoLogHop extends Plugin
 
 	@Subscribe
 	public void onGameTick(GameTick event){
-		if (config.disableWildyChecks() || inWilderness()) {
+		if (passedWildernessChecks()) {
 			if (nearPlayer()) {
-				if (config.hop())
-					hopToWorld(getValidWorld());
-				else {
-					logout();
-				}
+				handleAction();
 			}
 		}
 	}
@@ -99,12 +97,20 @@ public class AutoLogHop extends Plugin
 		if (event.getPlayer() == client.getLocalPlayer())
 			return;
 
-		if (config.disableWildyChecks() || inWilderness()) {
-			if (config.hop())
-				hopToWorld(getValidWorld());
-			else {
-				logout();
-			}
+		if (passedWildernessChecks()) {
+			handleAction();
+		}
+	}
+
+	private boolean passedWildernessChecks() {
+		return config.disableWildyChecks() || inWilderness();
+	}
+
+	private void handleAction() {
+		if (config.hop())
+			hopToWorld(getValidWorld());
+		else {
+			logout();
 		}
 	}
 
@@ -172,9 +178,23 @@ public class AutoLogHop extends Plugin
 		if (client.getWidget(WidgetInfo.WORLD_SWITCHER_LIST) == null)
 		{
 			client.openWorldHopper();
+
+			executor.submit(() -> {
+				try {
+					Thread.sleep(25 + ThreadLocalRandom.current().nextInt(125));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				injector.getInstance(ClientThread.class).invokeLater(() -> {
+					if (client.getWidget(WidgetInfo.WORLD_SWITCHER_LIST) != null)
+						client.hopToWorld(rsWorld);
+				});
+			});
+		} else {
+			client.hopToWorld(rsWorld);
 		}
 
-		client.hopToWorld(rsWorld);
+
 	}
 
 	private void logout() {
