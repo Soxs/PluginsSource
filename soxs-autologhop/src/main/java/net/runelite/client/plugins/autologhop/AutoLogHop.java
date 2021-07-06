@@ -140,6 +140,7 @@ public class AutoLogHop extends Plugin
 			if (w.getTypes().contains(net.runelite.http.api.worlds.WorldType.HIGH_RISK) ||
 					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.PVP) ||
 					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.SKILL_TOTAL) ||
+					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.DEADMAN) ||
 					w.getTypes().contains(net.runelite.http.api.worlds.WorldType.BOUNTY) ||
 					!w.getTypes().contains(net.runelite.http.api.worlds.WorldType.MEMBERS))
 				continue;
