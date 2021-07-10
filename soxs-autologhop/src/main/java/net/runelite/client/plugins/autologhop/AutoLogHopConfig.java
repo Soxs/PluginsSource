@@ -39,4 +39,16 @@ public interface AutoLogHopConfig extends Config
         return false;
     }
 
+    @ConfigItem(
+            keyName = "whitelist",
+            name = "Whitelist",
+            description = "Players to ignore - separate with ,",
+            position = 14,
+            section = title
+    )
+    default String whitelist()
+    {
+        return "";
+    }
+
 }

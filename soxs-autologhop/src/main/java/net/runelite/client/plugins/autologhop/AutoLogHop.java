@@ -97,6 +97,9 @@ public class AutoLogHop extends Plugin
 		if (event.getPlayer() == client.getLocalPlayer())
 			return;
 
+		if (isInWhitelist(event.getPlayer().getName()))
+			return;
+
 		if (passedWildernessChecks()) {
 			handleAction();
 		}
@@ -118,7 +121,7 @@ public class AutoLogHop extends Plugin
 		List<Player> players = client.getPlayers();
 		for (Player p : players)
 		{
-			if (p == client.getLocalPlayer())
+			if (p == client.getLocalPlayer() || isInWhitelist(p.getName()))
 				continue;
 
 			return true;
@@ -226,6 +229,21 @@ public class AutoLogHop extends Plugin
 	public boolean inWilderness()
 	{
 		return client.getVar(Varbits.IN_WILDERNESS) == 1;
+	}
+
+	public boolean isInWhitelist(String username)
+	{
+		username = username.toLowerCase().replace(" ", "_");
+		String[] names = config.whitelist().toLowerCase().replace(" ", "_").split(",");
+
+		for (String whitelisted : names)
+		{
+			if (whitelisted.isBlank() || whitelisted.isEmpty() || whitelisted.equals("_"))
+				continue;
+			if (whitelisted.equals(username))
+				return true;
+		}
+		return false;
 	}
 
 }

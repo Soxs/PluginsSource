@@ -25,6 +25,7 @@
 
 rootProject.name = "Soxs Plugins"
 
+include(":soxs-autoclicker")
 include(":soxs-autologhop")
 include(":soxs-autorun")
 

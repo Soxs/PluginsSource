@@ -23,10 +23,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.8"
+version = "0.0.7"
 
-project.extra["PluginName"] = "AutoLogHop"
-project.extra["PluginDescription"] = "Automatically Logout / Hop"
+project.extra["PluginName"] = "Soxs' AutoClicker"
+project.extra["PluginDescription"] = "Soxs' Autoclicker, highly configurable & supports chin break handler."
 
 
 tasks {
