@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.Point;
-import net.runelite.api.events.GameTick;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
 import org.jetbrains.annotations.NotNull;
 import org.pf4j.Extension;
@@ -19,7 +19,11 @@ import org.pf4j.Extension;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.*;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,10 +50,29 @@ public class AutoClickerPlugin extends Plugin
 	@Inject
 	private KeyManager keyManager;
 
-	private ExecutorService executorService;
-	private Point point;
+	@Inject
+	private ClientThread clientThread;
+
+	@Inject
+	private AutoClickerOverlay overlay;
+
+	@Inject
+	private ReflectBreakHandler breakHandler;
+
+	@Inject
+	private OverlayManager overlayManager;
+
+	private ExecutorService executorService, clickService;
+	private Point savedPoint;
 	private Random random;
-	private boolean run;
+	public boolean run;
+
+	private static ArrayList<MouseListener> mouseListeners = new ArrayList<>();
+	private static ArrayList<MouseMotionListener> mouseMotionListeners = new ArrayList<>();
+	private static SMouseMotionListener myMouseMotionListener;
+	private static SMouseListener myMouseListener;
+	private static boolean setupMouseListener = false;
+	private static boolean inputDisabled = false;
 
 
 	@Provides
@@ -58,16 +81,15 @@ public class AutoClickerPlugin extends Plugin
 		return configManager.getConfig(AutoClickerConfig.class);
 	}
 
-	@Inject
-	ReflectBreakHandler breakHandler;
-
 	@Override
 	protected void startUp()
 	{
 		keyManager.registerKeyListener(hotkeyListener);
 		executorService = Executors.newSingleThreadExecutor();
+		clickService = Executors.newSingleThreadExecutor();
 		random = new Random();
 		breakHandler.registerPlugin(this);
+		overlayManager.add(overlay);
 	}
 
 	@Override
@@ -75,10 +97,36 @@ public class AutoClickerPlugin extends Plugin
 	{
 		keyManager.unregisterKeyListener(hotkeyListener);
 		executorService.shutdown();
+		clickService.shutdown();
+		breakHandler.unregisterPlugin(this);
+		run = false;
+		inputDisabled = false;
+		overlayManager.remove(overlay);
 	}
 
 	public Plugin getClickerPlugin() {
 		return this;
+	}
+
+	void setupMouseListener() {
+		if (!setupMouseListener)
+		{
+			Canvas c = client.getCanvas();
+			MouseListener[] mL = c.getMouseListeners();
+			MouseMotionListener[] mML = c.getMouseMotionListeners();
+
+			for (MouseListener mouseListener : mL) {
+				mouseListeners.add(mouseListener);
+				c.removeMouseListener(mouseListener);
+			}
+			for (MouseMotionListener mouseMotionListener : mML) {
+				mouseMotionListeners.add(mouseMotionListener);
+				c.removeMouseMotionListener(mouseMotionListener);
+			}
+			c.addMouseListener(myMouseListener = new SMouseListener());
+			c.addMouseMotionListener(myMouseMotionListener = new SMouseMotionListener());
+			setupMouseListener = true;
+		}
 	}
 
 	private final HotkeyListener hotkeyListener = new HotkeyListener(() -> config.toggle())
@@ -91,24 +139,31 @@ public class AutoClickerPlugin extends Plugin
 			if (!run)
 			{
 				breakHandler.stopPlugin(getClickerPlugin());
+				inputDisabled = false;
 				return;
 			} else {
-				breakHandler.startPlugin(getClickerPlugin());
+				if (config.chinBreakHandler())
+					breakHandler.startPlugin(getClickerPlugin());
 			}
 
-			point = client.getMouseCanvasPosition();
+			savedPoint = client.getMouseCanvasPosition();
+			if (config.disableRealMouse())
+				inputDisabled = true;
+
+			setupMouseListener();
+
 			executorService.submit(() ->
 			{
 				while (run)
 				{
-					if (breakHandler.isBreakActive(getClickerPlugin()))
-					{
-						return;
-					}
+					if (config.chinBreakHandler()) {
+						if (breakHandler.isBreakActive(getClickerPlugin())) {
+							return;
+						}
 
-					if (breakHandler.shouldBreak(getClickerPlugin()))
-					{
-						breakHandler.startBreak(getClickerPlugin());
+						if (breakHandler.shouldBreak(getClickerPlugin())) {
+							breakHandler.startBreak(getClickerPlugin());
+						}
 					}
 
 					if (random.nextInt(100) < config.frequencyAFK())
@@ -123,10 +178,16 @@ public class AutoClickerPlugin extends Plugin
 						}
 					}
 
-
 					if (client.getGameState() == GameState.LOGGED_IN)
 					{
-						click(point);
+						if (config.followMouse())
+						{
+							clientThread.invokeLater(() -> {
+								Point p = client.getMouseCanvasPosition();
+								clickService.submit(() -> click(p));
+							});
+						} else
+							click(savedPoint);
 					}
 
 					try
@@ -139,6 +200,7 @@ public class AutoClickerPlugin extends Plugin
 					}
 				}
 				breakHandler.stopPlugin(getClickerPlugin());
+				inputDisabled = false;
 			});
 		}
 	};
@@ -159,26 +221,52 @@ public class AutoClickerPlugin extends Plugin
 	{
 		assert !client.isClientThread();
 
+		Point original = client.getMouseCanvasPosition();
+		boolean moved = false;
+
 		if (client.isStretchedEnabled())
 		{
 			final Dimension stretched = client.getStretchedDimensions();
 			final Dimension real = client.getRealDimensions();
 			final double width = (stretched.width / real.getWidth());
 			final double height = (stretched.height / real.getHeight());
+
 			final Point point = new Point((int) (p.getX() * width), (int) (p.getY() * height));
-			mouseEvent(501, point);
-			mouseEvent(502, point);
-			mouseEvent(500, point);
+			original = new Point((int) (original.getX() * width), (int) (original.getY() * height));
+
+			if (original.distanceTo(point) > 0)
+			{
+				mouseEvent(MouseEvent.MOUSE_MOVED, point);
+				log.info("Moved mouse");
+				moved = true;
+			}
+			mouseEvent(MouseEvent.MOUSE_PRESSED, point);
+			mouseEvent(MouseEvent.MOUSE_RELEASED, point);
+			mouseEvent(MouseEvent.MOUSE_CLICKED, point);
+			if (moved)
+			{
+				mouseEvent(MouseEvent.MOUSE_MOVED, original);
+			}
 			return;
 		}
-		mouseEvent(501, p);
-		mouseEvent(502, p);
-		mouseEvent(500, p);
+		if (original.distanceTo(p) > 0)
+		{
+			mouseEvent(MouseEvent.MOUSE_MOVED, p);
+			log.info("Moved mouse");
+			moved = true;
+		}
+		mouseEvent(MouseEvent.MOUSE_PRESSED, p);
+		mouseEvent(MouseEvent.MOUSE_RELEASED, p);
+		mouseEvent(MouseEvent.MOUSE_CLICKED, p);
+		if (moved)
+		{
+			mouseEvent(MouseEvent.MOUSE_MOVED, original);
+		}
 	}
 
 	private void mouseEvent(int id, @NotNull Point point)
 	{
-		MouseEvent e = new MouseEvent(
+		MouseEvent e = new SMouseEvent(
 				client.getCanvas(), id,
 				System.currentTimeMillis(),
 				0, point.getX(), point.getY(),
@@ -209,6 +297,92 @@ public class AutoClickerPlugin extends Plugin
 		double unitGaussian = random.nextGaussian();
 		double biasFactor = Math.exp(bias);
 		return mid + (range * (biasFactor / (biasFactor + Math.exp(-unitGaussian / skew)) - 0.5));
+	}
+
+
+	static class SMouseEvent extends MouseEvent {
+		public SMouseEvent(Component source, int id, long when, int modifiers, int x, int y, int clickCount, boolean popupTrigger, int button) {
+			super(source, id, when, modifiers, x, y, clickCount, popupTrigger, button);
+		}
+	}
+
+	private static class SMouseMotionListener implements MouseMotionListener {
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if (e instanceof SMouseEvent || !inputDisabled) {
+				for (MouseMotionListener mouseListener : mouseMotionListeners) {
+					mouseListener.mouseDragged(e);
+				}
+			} else {
+				e.consume();
+			}
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			if (e instanceof SMouseEvent || !inputDisabled) {
+				for (MouseMotionListener mouseListener : mouseMotionListeners) {
+					mouseListener.mouseMoved(e);
+				}
+			} else {
+				e.consume();
+			}
+		}
+	}
+
+	private static class SMouseListener implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e instanceof SMouseEvent || !inputDisabled) {
+				for (MouseListener mouseListener : mouseListeners) {
+					mouseListener.mouseClicked(e);
+				}
+			} else
+				e.consume();
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (e instanceof SMouseEvent || !inputDisabled) {
+				for (MouseListener mouseListener : mouseListeners) {
+					mouseListener.mousePressed(e);
+				}
+			} else
+				e.consume();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (e instanceof SMouseEvent || !inputDisabled) {
+				for (MouseListener mouseListener : mouseListeners) {
+					mouseListener.mouseReleased(e);
+				}
+			} else
+				e.consume();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			if (e instanceof SMouseEvent || !inputDisabled) {
+				for (MouseListener mouseListener : mouseListeners) {
+					mouseListener.mouseEntered(e);
+				}
+			} else
+				e.consume();
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			if (e instanceof SMouseEvent || !inputDisabled) {
+				for (MouseListener mouseListener : mouseListeners) {
+					mouseListener.mouseExited(e);
+				}
+			} else
+				e.consume();
+		}
+
 	}
 
 }

@@ -27,19 +27,19 @@ public interface AutoClickerConfig extends Config
     }
 
     @ConfigSection(
-            keyName = "delayTitle",
-            name = "Delay",
+            keyName = "clickerConfig",
+            name = "Clicker Config",
             description = "",
             position = 5
     )
-    String delayTitle = "Delay";
+    String clickerConfig = "Clicker Config";
 
     @ConfigItem(
             keyName = "minDelay",
             name = "Minimum Delay (ms)",
             description = "Minimum delay between mouse clicks.",
             position = 6,
-            section = delayTitle
+            section = clickerConfig
     )
     default int minDelay()
     {
@@ -51,7 +51,7 @@ public interface AutoClickerConfig extends Config
             name = "Maximum Delay (ms)",
             description = "Maximum delay between mouse clicks.",
             position = 7,
-            section = delayTitle
+            section = clickerConfig
     )
     default int maxDelay()
     {
@@ -63,7 +63,7 @@ public interface AutoClickerConfig extends Config
             name = "Delay Target",
             description = "",
             position = 8,
-            section = delayTitle
+            section = clickerConfig
     )
     default int target()
     {
@@ -75,7 +75,7 @@ public interface AutoClickerConfig extends Config
             name = "Delay Deviation",
             description = "",
             position = 9,
-            section = delayTitle
+            section = clickerConfig
     )
     default int deviation()
     {
@@ -87,14 +87,61 @@ public interface AutoClickerConfig extends Config
             name = "Weighted Distribution",
             description = "Shifts the random distribution towards the lower end at the target, otherwise it will be an even distribution",
             position = 10,
-            section = delayTitle
+            section = clickerConfig
     )
     default boolean weightedDistribution()
     {
         return false;
     }
 
+    @ConfigItem(
+            keyName = "followMouse",
+            name = "Follow Mouse",
+            description = "Click at the mouse location.",
+            position = 12,
+            section = clickerConfig
+    )
+    default boolean followMouse()
+    {
+        return true;
+    }
 
+    @ConfigItem(
+            keyName = "disableRealMouse",
+            name = "Disable Real Mouse",
+            description = "Disable the real mouse after the clicker has started, to prevent interference after setting it up.",
+            position = 14,
+            section = clickerConfig
+    )
+    default boolean disableRealMouse()
+    {
+        return true;
+    }
+
+
+    @ConfigItem(
+            keyName = "chinBreakHandler",
+            name = "ChinBreakHandler",
+            description = "Enable Chin Break Handler",
+            position = 14,
+            section = clickerConfig
+    )
+    default boolean chinBreakHandler()
+    {
+        return false;
+    }
+
+    @ConfigItem(
+            keyName = "disableUI",
+            name = "Disable UI",
+            description = "",
+            position = 16,
+            section = clickerConfig
+    )
+    default boolean disableUI()
+    {
+        return false;
+    }
 
 
 

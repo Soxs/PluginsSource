@@ -240,6 +240,11 @@ public class AutoLogHop extends Plugin
 		{
 			if (whitelisted.isBlank() || whitelisted.isEmpty() || whitelisted.equals("_"))
 				continue;
+
+			//remove trailing whitespace on names.
+			//if (whitelisted.charAt(whitelisted.length() - 1) == ' ')
+			//	whitelisted = whitelisted.substring(0, whitelisted.length() - 1);
+
 			if (whitelisted.equals(username))
 				return true;
 		}
