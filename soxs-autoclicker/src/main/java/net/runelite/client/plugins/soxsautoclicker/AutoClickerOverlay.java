@@ -48,7 +48,7 @@ class AutoClickerOverlay extends OverlayPanel {
             panelComponent.setPreferredSize(new Dimension(270, 200));
             panelComponent.setBorder(new Rectangle(5, 5, 5, 5));
             panelComponent.getChildren().add(TitleComponent.builder()
-                    .text("Soxs'' AutoClicker")
+                    .text("Soxs' AutoClicker")
                     .color(ColorUtil.fromHex("#40C4FF"))
                     .build());
             panelComponent.getChildren().add(tableComponent);

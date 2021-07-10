@@ -58,6 +58,7 @@ public class AutoClickerPlugin extends Plugin
 
 	@Inject
 	private ReflectBreakHandler breakHandler;
+	private static ReflectBreakHandler breakHandlerInstance;
 
 	@Inject
 	private OverlayManager overlayManager;
@@ -65,7 +66,8 @@ public class AutoClickerPlugin extends Plugin
 	private ExecutorService executorService, clickService;
 	private Point savedPoint;
 	private Random random;
-	public boolean run;
+	public static boolean run;
+	private static AutoClickerPlugin instance;
 
 	private static ArrayList<MouseListener> mouseListeners = new ArrayList<>();
 	private static ArrayList<MouseMotionListener> mouseMotionListeners = new ArrayList<>();
@@ -84,6 +86,8 @@ public class AutoClickerPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
+		instance = this;
+		breakHandlerInstance = breakHandler;
 		keyManager.registerKeyListener(hotkeyListener);
 		executorService = Executors.newSingleThreadExecutor();
 		clickService = Executors.newSingleThreadExecutor();
@@ -102,6 +106,10 @@ public class AutoClickerPlugin extends Plugin
 		run = false;
 		inputDisabled = false;
 		overlayManager.remove(overlay);
+	}
+
+	public static boolean shouldDisableMouseInput() {
+		return inputDisabled && run && !breakHandlerInstance.isBreakActive(instance) && !breakHandlerInstance.shouldBreak(instance);
 	}
 
 	public Plugin getClickerPlugin() {
@@ -310,7 +318,7 @@ public class AutoClickerPlugin extends Plugin
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (e instanceof SMouseEvent || !inputDisabled) {
+			if (e instanceof SMouseEvent || !shouldDisableMouseInput()) {
 				for (MouseMotionListener mouseListener : mouseMotionListeners) {
 					mouseListener.mouseDragged(e);
 				}
@@ -321,7 +329,7 @@ public class AutoClickerPlugin extends Plugin
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			if (e instanceof SMouseEvent || !inputDisabled) {
+			if (e instanceof SMouseEvent || !shouldDisableMouseInput()) {
 				for (MouseMotionListener mouseListener : mouseMotionListeners) {
 					mouseListener.mouseMoved(e);
 				}
@@ -335,7 +343,7 @@ public class AutoClickerPlugin extends Plugin
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if (e instanceof SMouseEvent || !inputDisabled) {
+			if (e instanceof SMouseEvent || !shouldDisableMouseInput()) {
 				for (MouseListener mouseListener : mouseListeners) {
 					mouseListener.mouseClicked(e);
 				}
@@ -345,7 +353,7 @@ public class AutoClickerPlugin extends Plugin
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			if (e instanceof SMouseEvent || !inputDisabled) {
+			if (e instanceof SMouseEvent || !shouldDisableMouseInput()) {
 				for (MouseListener mouseListener : mouseListeners) {
 					mouseListener.mousePressed(e);
 				}
@@ -355,7 +363,7 @@ public class AutoClickerPlugin extends Plugin
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (e instanceof SMouseEvent || !inputDisabled) {
+			if (e instanceof SMouseEvent || !shouldDisableMouseInput()) {
 				for (MouseListener mouseListener : mouseListeners) {
 					mouseListener.mouseReleased(e);
 				}
@@ -365,7 +373,7 @@ public class AutoClickerPlugin extends Plugin
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (e instanceof SMouseEvent || !inputDisabled) {
+			if (e instanceof SMouseEvent || !shouldDisableMouseInput()) {
 				for (MouseListener mouseListener : mouseListeners) {
 					mouseListener.mouseEntered(e);
 				}
@@ -375,7 +383,7 @@ public class AutoClickerPlugin extends Plugin
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			if (e instanceof SMouseEvent || !inputDisabled) {
+			if (e instanceof SMouseEvent || !shouldDisableMouseInput()) {
 				for (MouseListener mouseListener : mouseListeners) {
 					mouseListener.mouseExited(e);
 				}
