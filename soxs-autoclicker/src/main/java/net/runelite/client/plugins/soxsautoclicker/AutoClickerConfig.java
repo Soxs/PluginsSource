@@ -143,7 +143,37 @@ public interface AutoClickerConfig extends Config
         return false;
     }
 
+    @ConfigSection(
+            keyName = "clickerFilters",
+            name = "Clicker Filters",
+            description = "",
+            position = 17
+    )
+    String clickerFilters = "Clicker Filters";
 
+    @ConfigItem(
+            keyName = "skipOnMoving",
+            name = "Skip When Moving",
+            description = "",
+            position = 18,
+            section = clickerFilters
+    )
+    default boolean skipOnMoving()
+    {
+        return false;
+    }
+
+    @ConfigItem(
+            keyName = "skipOnInteraction",
+            name = "Skip On Interaction",
+            description = "",
+            position = 19,
+            section = clickerFilters
+    )
+    default boolean skipOnInteraction()
+    {
+        return false;
+    }
 
 
 

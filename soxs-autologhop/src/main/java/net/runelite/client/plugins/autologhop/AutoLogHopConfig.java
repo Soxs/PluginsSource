@@ -42,13 +42,25 @@ public interface AutoLogHopConfig extends Config
     @ConfigItem(
             keyName = "whitelist",
             name = "Whitelist",
-            description = "Players to ignore - separate with ,",
+            description = "Players to ignore - separate with , and don't leave leading/trailing spaces",
             position = 14,
             section = title
     )
     default String whitelist()
     {
         return "";
+    }
+
+    @ConfigItem(
+            keyName = "membersWorlds",
+            name = "Members Worlds",
+            description = "Hop to members worlds.",
+            position = 16,
+            section = title
+    )
+    default boolean membersWorlds()
+    {
+        return false;
     }
 
 }
