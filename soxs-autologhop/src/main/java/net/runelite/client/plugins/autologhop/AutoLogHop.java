@@ -1,12 +1,13 @@
 package net.runelite.client.plugins.autologhop;
 
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.*;
+import net.runelite.api.Client;
+import net.runelite.api.GameState;
+import net.runelite.api.MenuAction;
+import net.runelite.api.Player;
+import net.runelite.api.Varbits;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.widgets.Widget;
@@ -16,13 +17,17 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.WorldService;
-import net.runelite.client.plugins.*;
+import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.WorldUtil;
 import net.runelite.http.api.worlds.World;
 import net.runelite.http.api.worlds.WorldResult;
 import org.pf4j.Extension;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -100,6 +105,9 @@ public class AutoLogHop extends Plugin
 		if (isInWhitelist(event.getPlayer().getName()))
 			return;
 
+		if (event.getPlayer().getCombatLevel() < config.minCombat())
+			return;
+
 		if (passedWildernessChecks()) {
 			handleAction();
 		}
@@ -121,7 +129,7 @@ public class AutoLogHop extends Plugin
 		List<Player> players = client.getPlayers();
 		for (Player p : players)
 		{
-			if (p == client.getLocalPlayer() || isInWhitelist(p.getName()))
+			if (p == client.getLocalPlayer() || isInWhitelist(p.getName()) || p.getCombatLevel() < config.minCombat())
 				continue;
 
 			return true;
