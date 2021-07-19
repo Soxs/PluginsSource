@@ -60,7 +60,7 @@ public interface AutoLogHopConfig extends Config
     )
     default boolean membersWorlds()
     {
-        return false;
+        return true;
     }
 
     @ConfigItem(
