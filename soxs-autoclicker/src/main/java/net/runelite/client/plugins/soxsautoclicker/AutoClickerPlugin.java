@@ -195,7 +195,8 @@ public class AutoClickerPlugin extends Plugin {
                     if (client.getGameState() == GameState.LOGGED_IN) {
                         clientThread.invokeLater(() -> {
                             if ((!config.skipOnMoving() || client.getLocalPlayer().getIdlePoseAnimation() == client.getLocalPlayer().getPoseAnimation()) &&
-                                    (!config.skipOnInteraction() || client.getLocalPlayer().getInteracting() == null)) {
+                                    (!config.skipOnInteraction() || client.getLocalPlayer().getInteracting() == null) &&
+                                    (!config.skipOnAnimating() || client.getLocalPlayer().getAnimation() == -1)) {
                                 if (config.followMouse()) {
                                     clickService.submit(() -> click(lastPointBeforeBreak = client.getMouseCanvasPosition()));
                                 } else

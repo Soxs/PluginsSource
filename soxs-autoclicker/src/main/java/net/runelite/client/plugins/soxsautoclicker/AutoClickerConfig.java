@@ -175,6 +175,18 @@ public interface AutoClickerConfig extends Config
         return false;
     }
 
+    @ConfigItem(
+            keyName = "skipOnAnimating",
+            name = "Skip On Animating",
+            description = "",
+            position = 20,
+            section = clickerFilters
+    )
+    default boolean skipOnAnimating()
+    {
+        return false;
+    }
+
 
 
 
@@ -182,7 +194,7 @@ public interface AutoClickerConfig extends Config
             keyName = "afkDelayTitle",
             name = "Random AFK",
             description = "",
-            position = 20
+            position = 30
     )
     String afkDelayTitle = "Random AFK";
 
@@ -194,7 +206,7 @@ public interface AutoClickerConfig extends Config
             keyName = "frequencyAFK",
             name = "AFK Frequency (%)",
             description = "% chance to go AFK.",
-            position = 21,
+            position = 31,
             section = afkDelayTitle
     )
     default int frequencyAFK()
@@ -206,7 +218,7 @@ public interface AutoClickerConfig extends Config
             keyName = "minDelayAFK",
             name = "Minimum Delay (ms)",
             description = "Minimum AFK delay.",
-            position = 22,
+            position = 32,
             section = afkDelayTitle
     )
     default int minDelayAFK()
@@ -218,7 +230,7 @@ public interface AutoClickerConfig extends Config
             keyName = "maxDelayAFK",
             name = "Maximum Delay (ms)",
             description = "Maximum AFK delay.",
-            position = 23,
+            position = 33,
             section = afkDelayTitle
     )
     default int maxDelayAFK()
@@ -234,7 +246,7 @@ public interface AutoClickerConfig extends Config
             keyName = "weightSkewAFK",
             name = "AFK Skew (Tightness)",
             description = "The degree to which the AFK random weights cluster around the mode of the distribution; higher values mean tighter clustering.",
-            position = 24,
+            position = 34,
             section = afkDelayTitle
     )
     default int weightSkewAFK()
@@ -250,7 +262,7 @@ public interface AutoClickerConfig extends Config
             keyName = "weightBiasAFK",
             name = "AFK Bias (Offset)",
             description = "The tendency of the AFK mode to reach the min, max or midpoint value; positive values bias toward max, negative values toward min.",
-            position = 25,
+            position = 35,
             section = afkDelayTitle
     )
     default int weightBiasAFK()

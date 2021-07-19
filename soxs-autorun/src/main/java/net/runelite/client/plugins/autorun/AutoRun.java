@@ -107,7 +107,7 @@ public class AutoRun extends Plugin
 				e.printStackTrace();
 			}
 			Widget runOrb = client.getWidget(WidgetInfo.MINIMAP_TOGGLE_RUN_ORB);
-			client.invokeMenuAction("", "", 1, MenuAction.CC_OP.getId(), -1, runOrb.getId());
+			clientThread.invokeLater(() -> client.invokeMenuAction("", "", 1, MenuAction.CC_OP.getId(), -1, runOrb.getId()));
 		});
 	}
 
