@@ -63,4 +63,16 @@ public interface AutoLogHopConfig extends Config
         return false;
     }
 
+    @ConfigItem(
+            keyName = "minCombat",
+            name = "Minimum Combat",
+            description = "Minimum combat level to hop from",
+            position = 18,
+            section = title
+    )
+    default int minCombat()
+    {
+        return 3;
+    }
+
 }
