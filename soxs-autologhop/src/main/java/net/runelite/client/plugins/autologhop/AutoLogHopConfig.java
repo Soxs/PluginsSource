@@ -75,4 +75,16 @@ public interface AutoLogHopConfig extends Config
         return 3;
     }
 
+    @ConfigItem(
+            keyName = "skulledOnly",
+            name = "Skulled Players Only",
+            description = "Only triggers on skulled players.",
+            position = 20,
+            section = title
+    )
+    default boolean skulledOnly()
+    {
+        return false;
+    }
+
 }

@@ -7,6 +7,7 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuAction;
 import net.runelite.api.Player;
+import net.runelite.api.SkullIcon;
 import net.runelite.api.Varbits;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PlayerSpawned;
@@ -108,6 +109,9 @@ public class AutoLogHop extends Plugin
 		if (event.getPlayer().getCombatLevel() < config.minCombat())
 			return;
 
+		if (config.skulledOnly() && !isPlayerSkulled(event.getPlayer()))
+			return;
+
 		if (passedWildernessChecks()) {
 			handleAction();
 		}
@@ -115,6 +119,14 @@ public class AutoLogHop extends Plugin
 
 	private boolean passedWildernessChecks() {
 		return config.disableWildyChecks() || inWilderness();
+	}
+
+	private boolean isPlayerSkulled(Player player) {
+		if (player == null) {
+			return false;
+		}
+
+		return player.getSkullIcon() == SkullIcon.SKULL;
 	}
 
 	private void handleAction() {
@@ -129,7 +141,8 @@ public class AutoLogHop extends Plugin
 		List<Player> players = client.getPlayers();
 		for (Player p : players)
 		{
-			if (p == client.getLocalPlayer() || isInWhitelist(p.getName()) || p.getCombatLevel() < config.minCombat())
+			if (p == client.getLocalPlayer() || isInWhitelist(p.getName()) || p.getCombatLevel() < config.minCombat()
+					|| (config.skulledOnly() && !isPlayerSkulled(p)))
 				continue;
 
 			return true;
