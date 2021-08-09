@@ -15,23 +15,51 @@ public interface AutoLogHopConfig extends Config
     String title = "Soxs' AutoLogHop";
 
     @ConfigItem(
-            keyName = "hop",
-            name = "Hop Worlds",
-            description = "Hop world instead of log out.",
+            keyName = "method",
+            name = "Method",
+            description = "Logout = log out (0 tick), hop = hop worlds (1 tick), log then hop = logout and hop worlds from client screen (0 tick)",
             position = 10,
             section = title
     )
-    default boolean hop()
+    default Method method()
     {
-        return false;
+        return Method.LOGOUT_HOP;
     }
 
+    @ConfigItem(
+            keyName = "username",
+            name = "username",
+            description = "Username for login",
+            position = 11,
+            section = title,
+            hidden = true,
+            unhide = "method",
+            unhideValue = "LOGOUT_HOP"
+    )
+    default String user() {
+        return "";
+    }
+
+    @ConfigItem(
+            keyName = "password",
+            name = "password",
+            description = "Password for login",
+            position = 12,
+            section = title,
+            secret = true,
+            hidden = true,
+            unhide = "method",
+            unhideValue = "LOGOUT_HOP"
+    )
+    default String password() {
+        return "";
+    }
 
     @ConfigItem(
             keyName = "disableWildyChecks",
             name = "Disable Wilderness Checks",
             description = "Disable wilderness checks. Makes plugin work everywhere.",
-            position = 12,
+            position = 13,
             section = title
     )
     default boolean disableWildyChecks()
@@ -64,15 +92,15 @@ public interface AutoLogHopConfig extends Config
     }
 
     @ConfigItem(
-            keyName = "minCombat",
-            name = "Minimum Combat",
-            description = "Minimum combat level to hop from",
+            keyName = "combatRange",
+            name = "Within combat range",
+            description = "Will only consider players within combat level bracket of wilderness level",
             position = 18,
             section = title
     )
-    default int minCombat()
+    default boolean combatRange()
     {
-        return 3;
+        return true;
     }
 
     @ConfigItem(
