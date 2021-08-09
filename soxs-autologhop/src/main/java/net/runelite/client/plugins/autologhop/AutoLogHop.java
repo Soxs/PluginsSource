@@ -4,6 +4,7 @@ package net.runelite.client.plugins.autologhop;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.widgets.Widget;
@@ -17,6 +18,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.PvPUtil;
 import net.runelite.client.util.WorldUtil;
 import net.runelite.http.api.worlds.World;
 import net.runelite.http.api.worlds.WorldResult;
@@ -24,10 +26,13 @@ import org.pf4j.Extension;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.awt.event.KeyEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static java.awt.event.KeyEvent.VK_ENTER;
 
 @Extension
 @PluginDescriptor(
@@ -43,6 +48,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AutoLogHop extends Plugin {
     @Inject
     private Client client;
+
+    @Inject
+    private ExecutorService executorService;
 
     @Inject
     private PluginManager pluginManager;
@@ -64,6 +72,8 @@ public class AutoLogHop extends Plugin {
 
     @Inject
     private ExecutorService executor;
+
+    private boolean login;
 
     @Provides
     AutoLogHopConfig getConfig(ConfigManager configManager) {
@@ -89,6 +99,24 @@ public class AutoLogHop extends Plugin {
     }
 
     @Subscribe
+    public void onGameStateChanged(GameStateChanged event) {
+        if (!login || event.getGameState() != GameState.LOGIN_SCREEN || config.user().isBlank() || config.password().isBlank()) {
+            return;
+        }
+        hopToWorld(getValidWorld());
+        executorService.submit(() -> {
+            sleep(600);
+            pressKey(VK_ENTER);
+            client.setUsername(config.user());
+            client.setPassword(config.password());
+            sleep(600);
+            pressKey(VK_ENTER);
+            pressKey(VK_ENTER);
+        });
+        login = false;
+    }
+
+    @Subscribe
     public void onPlayerSpawned(PlayerSpawned event) {
         if (isPlayerBad(event.getPlayer()))
             handleAction();
@@ -105,10 +133,11 @@ public class AutoLogHop extends Plugin {
     }
 
     private void handleAction() {
-        if (config.hop())
+        if (config.method() == Method.HOP)
             hopToWorld(getValidWorld());
         else {
             logout();
+            login = config.method() == Method.LOGOUT_HOP; //only login if we caused logout
         }
     }
 
@@ -123,7 +152,7 @@ public class AutoLogHop extends Plugin {
         if (isInWhitelist(player.getName()))
             return false;
 
-        if (player.getCombatLevel() < config.minCombat())
+        if (config.combatRange() && !PvPUtil.isAttackable(client, player))
             return false;
 
         if (config.skulledOnly() && !isPlayerSkulled(player))
@@ -252,6 +281,29 @@ public class AutoLogHop extends Plugin {
         }
 
         return player.getSkullIcon() == SkullIcon.SKULL;
+    }
+
+    public void pressKey(int key) {
+        keyEvent(KeyEvent.KEY_PRESSED, key);
+        keyEvent(KeyEvent.KEY_RELEASED, key);
+    }
+
+    private void keyEvent(int id, int key) {
+        KeyEvent e = new KeyEvent(
+                client.getCanvas(), id, System.currentTimeMillis(),
+                0, key, KeyEvent.CHAR_UNDEFINED
+        );
+        client.getCanvas().dispatchEvent(e);
+    }
+
+    public static void sleep(long time) {
+        if (time > 0) {
+            try {
+                Thread.sleep(time);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }
