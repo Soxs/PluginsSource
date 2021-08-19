@@ -28,6 +28,7 @@ import org.pf4j.Extension;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.event.KeyEvent;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -161,17 +162,15 @@ public class AutoLogHop extends Plugin {
                 Widget inventory = client.getWidget(WidgetInfo.INVENTORY);
                 if (inventory == null)
                     return;
-                AtomicReference<WidgetItem> item = new AtomicReference<>(null);
-                inventory.getWidgetItems().stream().anyMatch(widgetItem -> {
-                    if (widgetItem.getId() == 19564) {
-                        item.set(widgetItem);
-                        return true;
+                Collection<WidgetItem> items = inventory.getWidgetItems();
+                for (WidgetItem item : items)
+                {
+                    if (item.getId() == 19564)
+                    {
+                        client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", 19564, MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
+                        break;
                     }
-                    return false;
-                });
-
-                if (item.get() != null)
-                    client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", 19564, MenuAction.ITEM_FIRST_OPTION.getId(), item.get().getIndex(), inventory.getId());
+                }
                 break;
         }
     }
