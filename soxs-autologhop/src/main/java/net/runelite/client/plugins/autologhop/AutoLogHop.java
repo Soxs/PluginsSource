@@ -9,6 +9,7 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.awt.event.KeyEvent.VK_ENTER;
 
@@ -133,11 +135,44 @@ public class AutoLogHop extends Plugin {
     }
 
     private void handleAction() {
-        if (config.method() == Method.HOP)
-            hopToWorld(getValidWorld());
-        else {
-            logout();
-            login = config.method() == Method.LOGOUT_HOP; //only login if we caused logout
+        switch (config.method()) {
+            case HOP:
+                hopToWorld(getValidWorld());
+                break;
+
+            case TELEPORT:
+                teleportAway();
+                break;
+
+            default:
+                logout();
+                login = config.method() == Method.LOGOUT_HOP; //only login if we caused logout
+                break;
+        }
+    }
+
+    private void teleportAway() {
+        switch (config.teleMethod()) {
+            case ROYAL_SEED_POD:
+                //can't use royal seed pod above lv 30 wilderness.
+                if (PvPUtil.getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation()) > 30)
+                    return;
+                //kinda a janky way to get the inventory widget without implementing a utils of some kind.
+                Widget inventory = client.getWidget(WidgetInfo.INVENTORY);
+                if (inventory == null)
+                    return;
+                AtomicReference<WidgetItem> item = new AtomicReference<>(null);
+                inventory.getWidgetItems().stream().anyMatch(widgetItem -> {
+                    if (widgetItem.getId() == 19564) {
+                        item.set(widgetItem);
+                        return true;
+                    }
+                    return false;
+                });
+
+                if (item.get() != null)
+                    client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", 19564, MenuAction.ITEM_FIRST_OPTION.getId(), item.get().getIndex(), inventory.getId());
+                break;
         }
     }
 

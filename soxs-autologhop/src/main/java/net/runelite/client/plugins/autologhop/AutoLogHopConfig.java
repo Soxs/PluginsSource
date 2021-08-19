@@ -27,10 +27,25 @@ public interface AutoLogHopConfig extends Config
     }
 
     @ConfigItem(
+            keyName = "teleMethod",
+            name = "Teleport Method",
+            description = "Logout = log out (0 tick), hop = hop worlds (1 tick), log then hop = logout and hop worlds from client screen (0 tick)",
+            position = 11,
+            section = title,
+            hidden = true,
+            unhide = "method",
+            unhideValue = "TELEPORT"
+    )
+    default TeleportType teleMethod()
+    {
+        return TeleportType.ROYAL_SEED_POD;
+    }
+
+    @ConfigItem(
             keyName = "username",
             name = "username",
             description = "Username for login",
-            position = 11,
+            position = 12,
             section = title,
             hidden = true,
             unhide = "method",
@@ -44,7 +59,7 @@ public interface AutoLogHopConfig extends Config
             keyName = "password",
             name = "password",
             description = "Password for login",
-            position = 12,
+            position = 13,
             section = title,
             secret = true,
             hidden = true,
@@ -59,7 +74,7 @@ public interface AutoLogHopConfig extends Config
             keyName = "disableWildyChecks",
             name = "Disable Wilderness Checks",
             description = "Disable wilderness checks. Makes plugin work everywhere.",
-            position = 13,
+            position = 14,
             section = title
     )
     default boolean disableWildyChecks()
@@ -71,7 +86,7 @@ public interface AutoLogHopConfig extends Config
             keyName = "whitelist",
             name = "Whitelist",
             description = "Players to ignore - separate with , and don't leave leading/trailing spaces",
-            position = 14,
+            position = 15,
             section = title
     )
     default String whitelist()
