@@ -178,10 +178,11 @@ public class AutoLogHop extends Plugin {
                     return;
                 //not as janky as inventory items kek
                 Widget equipment = client.getWidget(WidgetInfo.EQUIPMENT_RING);
+                ItemContainer container = client.getItemContainer(InventoryID.EQUIPMENT);
                 if (equipment == null)
                     return;
-                //don't attempt to tele if the ring in uncharged.
-                if (Arrays.stream(equipment.getDynamicChildren()).anyMatch(widget -> widget.getItemId() == ItemID.RING_OF_WEALTH))
+                //don't attempt to tele if we don't have a ring lol
+                if (container != null && Arrays.stream(container.getItems()).noneMatch(item -> client.getItemDefinition(item.getId()).getName().toLowerCase().contains("ring of wealth (")))
                     return;
 
                 client.invokeMenuAction("Grand Exchange", "<col=ff9040>Ring of wealth ( )</col>", 3, MenuAction.CC_OP.getId(), -1, equipment.getId());
