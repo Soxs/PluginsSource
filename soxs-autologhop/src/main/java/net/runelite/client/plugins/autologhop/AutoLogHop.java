@@ -98,7 +98,6 @@ public class AutoLogHop extends Plugin {
         if (nearPlayer()) {
             handleAction();
         }
-
     }
 
     @Subscribe
@@ -164,13 +163,22 @@ public class AutoLogHop extends Plugin {
                     return;
                 Collection<WidgetItem> items = inventory.getWidgetItems();
                 for (WidgetItem item : items)
-                {
                     if (item.getId() == 19564)
                     {
-                        client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", 19564, MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
+                        client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
                         break;
                     }
-                }
+
+                break;
+            case ROW_GRAND_EXCHANGE:
+                //can't use ring of wealth above lv 30 wilderness.
+                if (PvPUtil.getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation()) > 30)
+                    return;
+                //not as janky as inventory items kek
+                Widget equipment = client.getWidget(WidgetInfo.EQUIPMENT_RING);
+                if (equipment == null)
+                    return;
+                client.invokeMenuAction("Grand Exchange", "<col=ff9040>Ring of wealth ( )</col>", 3, MenuAction.CC_OP.getId(), -1, equipment.getId());
                 break;
         }
     }
