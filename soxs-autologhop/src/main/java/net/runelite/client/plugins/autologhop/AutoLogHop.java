@@ -28,12 +28,14 @@ import org.pf4j.Extension;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import static java.awt.event.KeyEvent.VK_ENTER;
 
@@ -163,7 +165,7 @@ public class AutoLogHop extends Plugin {
                     return;
                 Collection<WidgetItem> items = inventory.getWidgetItems();
                 for (WidgetItem item : items)
-                    if (item.getId() == 19564)
+                    if (item.getId() == ItemID.ROYAL_SEED_POD)
                     {
                         client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
                         break;
@@ -178,6 +180,10 @@ public class AutoLogHop extends Plugin {
                 Widget equipment = client.getWidget(WidgetInfo.EQUIPMENT_RING);
                 if (equipment == null)
                     return;
+                //don't attempt to tele if the ring in uncharged.
+                if (Arrays.stream(equipment.getDynamicChildren()).anyMatch(widget -> widget.getItemId() == ItemID.RING_OF_WEALTH))
+                    return;
+
                 client.invokeMenuAction("Grand Exchange", "<col=ff9040>Ring of wealth ( )</col>", 3, MenuAction.CC_OP.getId(), -1, equipment.getId());
                 break;
         }
