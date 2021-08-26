@@ -5,6 +5,7 @@ import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.NPC;
 import net.runelite.api.Point;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -23,6 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -157,7 +159,7 @@ public class AutoClickerPlugin extends Plugin {
             executorService.submit(() ->
             {
 
-                while (run) {
+                mainLoop: while (run) {
                     if (config.chinBreakHandler()) {
                         if (breakHandler.isBreakActive(getClickerPlugin())) {
                             try {
@@ -184,6 +186,35 @@ public class AutoClickerPlugin extends Plugin {
                         continue;
                     }
 
+                    Point mousePoint = client.getMouseCanvasPosition();
+                    if (config.mouseOnNPC())
+                    {
+                        List<NPC> npcs = client.getNpcs();
+                        boolean shouldContinue = false;
+                        for (NPC npc : npcs)
+                        {
+                            if (npc == null)
+                                continue;
+                            if (npc.getId() == config.mouseOnNPCID())
+                            {
+                                if (npc.getConvexHull().contains(mousePoint.getX(), mousePoint.getY()))
+                                {
+                                    shouldContinue = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!shouldContinue)
+                        {
+                            try {
+                                Thread.sleep(getBetweenClicksDelay());
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            continue;
+                        }
+                    }
+
                     if (random.nextInt(100) < config.frequencyAFK()) {
                         try {
                             Thread.sleep(randWeightedInt(config.minDelayAFK(), config.maxDelayAFK()));
@@ -198,7 +229,7 @@ public class AutoClickerPlugin extends Plugin {
                                     (!config.skipOnInteraction() || client.getLocalPlayer().getInteracting() == null) &&
                                     (!config.skipOnAnimating() || client.getLocalPlayer().getAnimation() == -1)) {
                                 if (config.followMouse()) {
-                                    clickService.submit(() -> click(lastPointBeforeBreak = client.getMouseCanvasPosition()));
+                                    clickService.submit(() -> click(lastPointBeforeBreak = mousePoint));
                                 } else
                                     clickService.submit(() -> click(lastPointBeforeBreak = savedPoint));
                             }
