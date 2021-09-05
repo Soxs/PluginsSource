@@ -156,6 +156,7 @@ public class AutoLogHop extends Plugin {
     private void teleportAway() {
         switch (config.teleMethod()) {
             case ROYAL_SEED_POD:
+            {
                 //can't use royal seed pod above lv 30 wilderness.
                 if (PvPUtil.getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation()) > 30)
                     return;
@@ -165,14 +166,15 @@ public class AutoLogHop extends Plugin {
                     return;
                 Collection<WidgetItem> items = inventory.getWidgetItems();
                 for (WidgetItem item : items)
-                    if (item.getId() == ItemID.ROYAL_SEED_POD)
-                    {
+                    if (item.getId() == ItemID.ROYAL_SEED_POD) {
                         client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
                         break;
                     }
 
                 break;
+            }
             case ROW_GRAND_EXCHANGE:
+            {
                 //can't use ring of wealth above lv 30 wilderness.
                 if (PvPUtil.getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation()) > 30)
                     return;
@@ -187,6 +189,25 @@ public class AutoLogHop extends Plugin {
 
                 client.invokeMenuAction("Grand Exchange", "<col=ff9040>Ring of wealth ( )</col>", 3, MenuAction.CC_OP.getId(), -1, equipment.getId());
                 break;
+            }
+            case ECTOPHIAL:
+            {
+                //can't use ectophial above lv 20 wilderness.
+                if (PvPUtil.getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation()) > 20)
+                    return;
+                //kinda a janky way to get the inventory widget without implementing a utils of some kind.
+                Widget inventory = client.getWidget(WidgetInfo.INVENTORY);
+                if (inventory == null)
+                    return;
+                Collection<WidgetItem> items = inventory.getWidgetItems();
+                for (WidgetItem item : items)
+                    if (item.getId() == ItemID.ECTOPHIAL) {
+                        client.invokeMenuAction("Empty", "<col=ff9040>Ectophial", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
+                        break;
+                    }
+
+                break;
+            }
         }
     }
 
