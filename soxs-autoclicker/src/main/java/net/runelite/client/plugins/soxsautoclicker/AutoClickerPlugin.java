@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Extension
 @PluginDescriptor(
@@ -160,7 +159,8 @@ public class AutoClickerPlugin extends Plugin {
             executorService.submit(() ->
             {
 
-                mainLoop: while (run) {
+                mainLoop:
+                while (run) {
                     if (config.chinBreakHandler()) {
                         if (breakHandler.isBreakActive(getClickerPlugin())) {
                             try {
@@ -179,43 +179,11 @@ public class AutoClickerPlugin extends Plugin {
                         }
                     }
 
-                    if (wasBreaking && lastPointBeforeBreak != null && config.followMouse())
-                    {
+                    if (wasBreaking && lastPointBeforeBreak != null && config.followMouse()) {
                         mouseEvent(MouseEvent.MOUSE_MOVED, lastPointBeforeBreak);
                         wasBreaking = false;
                         lastPointBeforeBreak = null;
                         continue;
-                    }
-
-                    Point mousePoint = client.getMouseCanvasPosition();
-                    if (config.mouseOnNPC())
-                    {
-                        AtomicBoolean shouldContinue = new AtomicBoolean(false);
-                        clientThread.invokeLater(() -> {
-                            List<NPC> npcs = client.getNpcs();
-                            for (NPC npc : npcs)
-                            {
-                                if (npc == null)
-                                    continue;
-                                if (npc.getId() == config.mouseOnNPCID())
-                                {
-                                    if (npc.getConvexHull().contains(mousePoint.getX(), mousePoint.getY()))
-                                    {
-                                        shouldContinue.set(true);
-                                        break;
-                                    }
-                                }
-                            }
-                        });
-                        if (!shouldContinue.get())
-                        {
-                            try {
-                                Thread.sleep(getBetweenClicksDelay());
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            continue;
-                        }
                     }
 
                     if (random.nextInt(100) < config.frequencyAFK()) {
@@ -228,9 +196,28 @@ public class AutoClickerPlugin extends Plugin {
 
                     if (client.getGameState() == GameState.LOGGED_IN) {
                         clientThread.invokeLater(() -> {
+
+                            boolean shouldSkipDueToNPC = false;
+                            Point mousePoint = client.getMouseCanvasPosition();
+                            if (config.mouseOnNPC()) {
+                                shouldSkipDueToNPC = true;
+                                List<NPC> npcs = client.getNpcs();
+                                for (NPC npc : npcs) {
+                                    if (npc == null)
+                                        continue;
+                                    if (npc.getId() == config.mouseOnNPCID()) {
+                                        if (npc.getConvexHull().contains(mousePoint.getX(), mousePoint.getY())) {
+                                            shouldSkipDueToNPC = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
                             if ((!config.skipOnMoving() || client.getLocalPlayer().getIdlePoseAnimation() == client.getLocalPlayer().getPoseAnimation()) &&
                                     (!config.skipOnInteraction() || client.getLocalPlayer().getInteracting() == null) &&
-                                    (!config.skipOnAnimating() || client.getLocalPlayer().getAnimation() == -1)) {
+                                    (!config.skipOnAnimating() || client.getLocalPlayer().getAnimation() == -1) &&
+                                    !shouldSkipDueToNPC) {
                                 if (config.followMouse()) {
                                     clickService.submit(() -> click(lastPointBeforeBreak = mousePoint));
                                 } else

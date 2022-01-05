@@ -12,12 +12,9 @@ import net.runelite.client.util.ColorUtil;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.*;
-import java.time.Duration;
-import java.time.Instant;
 
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
-import static org.apache.commons.lang3.time.DurationFormatUtils.formatDuration;
 
 @Slf4j
 @Singleton
@@ -36,7 +33,7 @@ class AutoClickerOverlay extends OverlayPanel {
 
     @Override
     public Dimension render(Graphics2D graphics) {
-        if (!plugin.run || config.disableUI()) {
+        if (!AutoClickerPlugin.run || config.disableUI()) {
             return null;
         }
 
