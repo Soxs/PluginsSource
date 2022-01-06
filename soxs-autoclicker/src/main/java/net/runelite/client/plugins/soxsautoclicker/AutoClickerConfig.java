@@ -225,7 +225,7 @@ public interface AutoClickerConfig extends Config
     String clickOn = "Click On Event";
 
     @ConfigItem(
-            keyName = "eventMinDelayAFK",
+            keyName = "eventMinDelay",
             name = "Minimum Delay (ms)",
             description = "Minimum event click delay.",
             position = 26,
@@ -237,7 +237,7 @@ public interface AutoClickerConfig extends Config
     }
 
     @ConfigItem(
-            keyName = "eventMaxDelayAFK",
+            keyName = "eventMaxDelay",
             name = "Maximum Delay (ms)",
             description = "Maximum event click delay.",
             position = 27,
@@ -253,8 +253,8 @@ public interface AutoClickerConfig extends Config
             max = 9
     )
     @ConfigItem(
-            keyName = "eventWeightSkewAFK",
-            name = "AFK Skew (Tightness)",
+            keyName = "eventWeightSkew",
+            name = "Skew (Tightness)",
             description = "The degree to which the event click delay random weights cluster around the mode of the distribution; higher values mean tighter clustering.",
             position = 28,
             section = clickOn
@@ -269,8 +269,8 @@ public interface AutoClickerConfig extends Config
             max = 10
     )
     @ConfigItem(
-            keyName = "eventWeightBiasAFK",
-            name = "AFK Bias (Offset)",
+            keyName = "eventWeightBias",
+            name = "Bias (Offset)",
             description = "The tendency of the AFK mode to reach the min, max or midpoint value; positive values bias toward max, negative values toward min.",
             position = 29,
             section = clickOn
@@ -305,6 +305,12 @@ public interface AutoClickerConfig extends Config
     {
         return 713;
     }
+
+
+
+
+
+
 
 
 
