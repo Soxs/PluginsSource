@@ -40,6 +40,8 @@ class AutoClickerOverlay extends OverlayPanel {
         TableComponent tableComponent = new TableComponent();
         tableComponent.setColumnAlignments(TableAlignment.LEFT, TableAlignment.RIGHT);
         tableComponent.addRow("Running...");
+        if (plugin.lastAFK != 0)
+            tableComponent.addRow("is AFK for: " + plugin.lastAFK);
         if (!tableComponent.isEmpty()) {
             panelComponent.setBackgroundColor(ColorUtil.fromHex("#121212")); //Material Dark default
             panelComponent.setPreferredSize(new Dimension(270, 200));

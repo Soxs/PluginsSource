@@ -3,12 +3,12 @@ package net.runelite.client.plugins.soxsautoclicker;
 
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.NPC;
+import net.runelite.api.*;
 import net.runelite.api.Point;
+import net.runelite.api.events.AnimationChanged;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -79,6 +79,7 @@ public class AutoClickerPlugin extends Plugin {
     private boolean wasBreaking = false;
     private Point lastPointBeforeBreak = null;
 
+    public int lastAFK = 0;
 
     @Provides
     AutoClickerConfig getConfig(ConfigManager configManager) {
@@ -106,6 +107,41 @@ public class AutoClickerPlugin extends Plugin {
         run = false;
         inputDisabled = false;
         overlayManager.remove(overlay);
+    }
+
+    @Subscribe
+    public void onAnimationChanged(AnimationChanged event)
+    {
+        if (!run)
+            return;
+        if (!config.clickOnAnimation())
+            return;
+        if (breakHandler.isBreakActive(this))
+            return;
+
+        if (event.getActor() instanceof Player)
+        {
+            Player p = (Player) event.getActor();
+            if (p == client.getLocalPlayer())
+            {
+                if (event.getActor().getAnimation() == config.clickOnAnimationID())
+                {
+                    executorService.submit(() -> {
+
+                        try {
+                            Thread.sleep(randWeightedInt(config.eventMinDelay(), config.eventMaxDelay(), config.eventWeightSkew(), config.eventWeightBias()));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (config.followMouse()) {
+                            clickService.submit(() -> click(lastPointBeforeBreak = client.getMouseCanvasPosition()));
+                        } else
+                            clickService.submit(() -> click(lastPointBeforeBreak = savedPoint));
+                    });
+                }
+            }
+        }
     }
 
     public static boolean shouldDisableMouseInput() {
@@ -188,10 +224,11 @@ public class AutoClickerPlugin extends Plugin {
 
                     if (random.nextInt(100) < config.frequencyAFK()) {
                         try {
-                            Thread.sleep(randWeightedInt(config.minDelayAFK(), config.maxDelayAFK()));
+                            Thread.sleep(lastAFK = randWeightedInt(config.minDelayAFK(), config.maxDelayAFK(), config.weightSkewAFK(), config.weightBiasAFK()));
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        lastAFK = 0;
                     }
 
                     if (client.getGameState() == GameState.LOGGED_IN) {
@@ -301,8 +338,8 @@ public class AutoClickerPlugin extends Plugin {
         client.getCanvas().dispatchEvent(e);
     }
 
-    private int randWeightedInt(int min, int max) {
-        int ra = randBellWeight(min, max);
+    private int randWeightedInt(int min, int max, int weightSkew, int weightBias) {
+        int ra = randBellWeight(min, max, weightSkew, weightBias);
         int sorted = Math.min(max, Math.max(min, ra));
         if (min >= 0 && max > 0)
             return Math.abs(sorted);
@@ -310,10 +347,10 @@ public class AutoClickerPlugin extends Plugin {
             return sorted;
     }
 
-    private int randBellWeight(int min, int max) {
+    private int randBellWeight(int min, int max, int weightSkew, int weightBias) {
         if (max <= min)
             max = min + 1;
-        return (int) nextSkewedBoundedDouble(min, max, config.weightSkewAFK() / 10d, config.weightBiasAFK() / 10d);
+        return (int) nextSkewedBoundedDouble(min, max, weightSkew / 10d, weightBias / 10d);
     }
 
     private double nextSkewedBoundedDouble(double min, double max, double skew, double bias) {
