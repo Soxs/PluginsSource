@@ -256,10 +256,12 @@ public class AutoClickerPlugin extends Plugin {
                                     (!config.skipOnInteraction() || client.getLocalPlayer().getInteracting() == null) &&
                                     (!config.skipOnAnimating() || client.getLocalPlayer().getAnimation() == -1) &&
                                     !shouldSkipDueToNPC) {
-                                if (config.followMouse()) {
-                                    clickService.submit(() -> click(lastPointBeforeBreak = mousePoint));
-                                } else
-                                    clickService.submit(() -> click(lastPointBeforeBreak = savedPoint));
+                                if (config.mainClickerActive()) {
+                                    if (config.followMouse()) {
+                                        clickService.submit(() -> click(lastPointBeforeBreak = mousePoint));
+                                    } else
+                                        clickService.submit(() -> click(lastPointBeforeBreak = savedPoint));
+                                }
                             }
                         });
                     }

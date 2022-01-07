@@ -30,9 +30,21 @@ public interface AutoClickerConfig extends Config
             keyName = "clickerConfig",
             name = "Clicker Config",
             description = "",
-            position = 5
+            position = 4
     )
     String clickerConfig = "Clicker Config";
+
+    @ConfigItem(
+            keyName = "mainClickerActive",
+            name = "Main Clicker Active",
+            description = "Whether the main interval clicker is active",
+            position = 5,
+            section = clickerConfig
+    )
+    default boolean mainClickerActive()
+    {
+        return true;
+    }
 
     @ConfigItem(
             keyName = "minDelay",
