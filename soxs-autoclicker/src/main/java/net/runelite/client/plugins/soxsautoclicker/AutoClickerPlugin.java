@@ -63,7 +63,7 @@ public class AutoClickerPlugin extends Plugin {
     @Inject
     private OverlayManager overlayManager;
 
-    private ExecutorService executorService, clickService;
+    private ExecutorService executorService, clickService, clientService;
     private Point savedPoint;
     private Random random;
     public static boolean run;
@@ -93,6 +93,7 @@ public class AutoClickerPlugin extends Plugin {
         keyManager.registerKeyListener(hotkeyListener);
         executorService = Executors.newSingleThreadExecutor();
         clickService = Executors.newSingleThreadExecutor();
+        clientService = Executors.newSingleThreadExecutor();
         random = new Random();
         breakHandler.registerPlugin(this);
         overlayManager.add(overlay);
@@ -103,6 +104,7 @@ public class AutoClickerPlugin extends Plugin {
         keyManager.unregisterKeyListener(hotkeyListener);
         executorService.shutdown();
         clickService.shutdown();
+        clientService.shutdown();
         breakHandler.unregisterPlugin(this);
         run = false;
         inputDisabled = false;
@@ -126,8 +128,7 @@ public class AutoClickerPlugin extends Plugin {
             {
                 if (event.getActor().getAnimation() == config.clickOnAnimationID())
                 {
-                    executorService.submit(() -> {
-
+                    clientService.submit(() -> {
                         try {
                             Thread.sleep(randWeightedInt(config.eventMinDelay(), config.eventMaxDelay(), config.eventWeightSkew(), config.eventWeightBias()));
                         } catch (InterruptedException e) {
