@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.Point;
 import net.runelite.api.events.AnimationChanged;
+import net.runelite.api.queries.GameObjectQuery;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -252,10 +253,31 @@ public class AutoClickerPlugin extends Plugin {
                                 }
                             }
 
+                            boolean shouldSkipDueToGameObject = false;
+                            if (config.mouseOnGameObject()) {
+                                shouldSkipDueToGameObject = true;
+                                int gameObjectId = config.mouseOnGameObjectID();
+
+                                List<GameObject> gameObjects = new GameObjectQuery()
+                                    .idEquals(gameObjectId)
+                                    .result(client)
+                                    .list;
+
+                                for (GameObject gameObject : gameObjects) {
+                                    if (gameObject == null)
+                                        continue;
+
+                                    if (gameObject.getConvexHull().contains(mousePoint.getX(), mousePoint.getY())) {
+                                        shouldSkipDueToGameObject = false;
+                                        break;
+                                    }
+                                }
+                            }
+
                             if ((!config.skipOnMoving() || client.getLocalPlayer().getIdlePoseAnimation() == client.getLocalPlayer().getPoseAnimation()) &&
                                     (!config.skipOnInteraction() || client.getLocalPlayer().getInteracting() == null) &&
                                     (!config.skipOnAnimating() || client.getLocalPlayer().getAnimation() == -1) &&
-                                    !shouldSkipDueToNPC) {
+                                    !shouldSkipDueToNPC && !shouldSkipDueToGameObject) {
                                 if (config.mainClickerActive()) {
                                     if (config.followMouse()) {
                                         clickService.submit(() -> click(lastPointBeforeBreak = mousePoint));

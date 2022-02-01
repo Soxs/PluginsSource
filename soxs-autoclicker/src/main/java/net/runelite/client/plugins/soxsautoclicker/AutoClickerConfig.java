@@ -226,6 +226,32 @@ public interface AutoClickerConfig extends Config
         return 0;
     }
 
+    @ConfigItem(
+        keyName = "mouseOnGameObject",
+        name = "Mouse On Game Object",
+        description = "",
+        position = 24,
+        section = clickerFilters
+    )
+    default boolean mouseOnGameObject()
+    {
+        return false;
+    }
+
+    @ConfigItem(
+        keyName = "mouseOnGameObjectID",
+        name = "Game Object ID",
+        description = "",
+        position = 25,
+        section = clickerFilters,
+        hidden = true,
+        unhide = "mouseOnGameObject"
+    )
+    default int mouseOnGameObjectID()
+    {
+        return 0;
+    }
+
 
 
     @ConfigSection(
