@@ -228,6 +228,7 @@ public class AutoLogHop extends Plugin {
                     w.getTypes().contains(net.runelite.http.api.worlds.WorldType.PVP) ||
                     w.getTypes().contains(net.runelite.http.api.worlds.WorldType.SKILL_TOTAL) ||
                     w.getTypes().contains(net.runelite.http.api.worlds.WorldType.BOUNTY) ||
+                    w.getTypes().contains(net.runelite.http.api.worlds.WorldType.SEASONAL) ||
                     config.membersWorlds() != w.getTypes().contains(net.runelite.http.api.worlds.WorldType.MEMBERS))
                 continue;
             return w.getId();
