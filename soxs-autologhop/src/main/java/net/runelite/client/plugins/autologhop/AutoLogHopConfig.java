@@ -130,4 +130,18 @@ public interface AutoLogHopConfig extends Config
         return false;
     }
 
+    @ConfigItem(
+            keyName = "deadmanSkulls",
+            name = "Include Deadman Skulls",
+            description = "Include deadman skulls.",
+            position = 22,
+            section = title,
+            hidden = true,
+            unhide = "skulledOnly"
+    )
+    default boolean deadmanSkulls()
+    {
+        return false;
+    }
+
 }

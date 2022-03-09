@@ -34,8 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 
 import static java.awt.event.KeyEvent.VK_ENTER;
 
@@ -328,6 +326,24 @@ public class AutoLogHop extends Plugin {
     private boolean isPlayerSkulled(Player player) {
         if (player == null) {
             return false;
+        }
+
+        if (config.skulledOnly() && config.deadmanSkulls())
+        {
+            SkullIcon[] icons =
+                    {
+                            SkullIcon.DEAD_MAN_ONE,
+                            SkullIcon.DEAD_MAN_TWO,
+                            SkullIcon.DEAD_MAN_THREE,
+                            SkullIcon.DEAD_MAN_FOUR,
+                            SkullIcon.DEAD_MAN_FIVE
+                    };
+
+            for (SkullIcon ic : icons)
+            {
+                if (player.getSkullIcon() == ic)
+                    return true;
+            }
         }
 
         return player.getSkullIcon() == SkullIcon.SKULL;
