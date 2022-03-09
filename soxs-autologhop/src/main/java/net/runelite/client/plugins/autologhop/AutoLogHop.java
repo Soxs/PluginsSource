@@ -328,7 +328,7 @@ public class AutoLogHop extends Plugin {
             return false;
         }
 
-        if (config.skulledOnly() && config.deadmanSkulls())
+        /*if (config.skulledOnly() && config.deadmanSkulls())
         {
             SkullIcon[] icons =
                     {
@@ -344,7 +344,7 @@ public class AutoLogHop extends Plugin {
                 if (player.getSkullIcon() == ic)
                     return true;
             }
-        }
+        }*/
 
         return player.getSkullIcon() == SkullIcon.SKULL;
     }

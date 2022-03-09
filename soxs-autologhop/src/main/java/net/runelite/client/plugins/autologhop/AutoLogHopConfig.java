@@ -129,7 +129,7 @@ public interface AutoLogHopConfig extends Config
     {
         return false;
     }
-
+/*
     @ConfigItem(
             keyName = "deadmanSkulls",
             name = "Include Deadman Skulls",
@@ -143,5 +143,5 @@ public interface AutoLogHopConfig extends Config
     {
         return false;
     }
-
+*/
 }
