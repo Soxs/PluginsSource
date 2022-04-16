@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.1.8"
+version = "0.1.9"
 
 project.extra["PluginName"] = "AutoLogHop"
 project.extra["PluginDescription"] = "Automatically Logout / Hop / Teleport"

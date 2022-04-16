@@ -28,10 +28,7 @@ import org.pf4j.Extension;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -157,18 +154,15 @@ public class AutoLogHop extends Plugin {
                 //can't use royal seed pod above lv 30 wilderness.
                 if (PvPUtil.getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation()) > 30)
                     return;
-                //kinda a janky way to get the inventory widget without implementing a utils of some kind.
                 Widget inventory = client.getWidget(WidgetInfo.INVENTORY);
                 if (inventory == null)
                     return;
                 Collection<WidgetItem> items = inventory.getWidgetItems();
-                for (WidgetItem item : items)
-                    if (item.getId() == ItemID.ROYAL_SEED_POD)
-                    {
-                        client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
-                        break;
-                    }
-
+                Optional<WidgetItem> itemCheck = items.stream().filter(widgetItem -> widgetItem.getId() == ItemID.ROYAL_SEED_POD).findFirst();
+                if (itemCheck.isPresent()) {
+                    WidgetItem item = itemCheck.get();
+                    client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
+                }
                 break;
             case ROW_GRAND_EXCHANGE:
                 //can't use ring of wealth above lv 30 wilderness.
@@ -302,7 +296,7 @@ public class AutoLogHop extends Plugin {
     }
 
     public boolean inWilderness() {
-        return client.getVar(Varbits.IN_WILDERNESS) == 1;
+        return client.getVarbitValue(Varbits.IN_WILDERNESS) == 1;
     }
 
     public boolean isInWhitelist(String username) {
