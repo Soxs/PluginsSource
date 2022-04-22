@@ -9,7 +9,6 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PlayerSpawned;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
@@ -157,11 +156,11 @@ public class AutoLogHop extends Plugin {
                 Widget inventory = client.getWidget(WidgetInfo.INVENTORY);
                 if (inventory == null)
                     return;
-                Collection<WidgetItem> items = inventory.getWidgetItems();
-                Optional<WidgetItem> itemCheck = items.stream().filter(widgetItem -> widgetItem.getId() == ItemID.ROYAL_SEED_POD).findFirst();
+                Collection<Widget> items = Arrays.asList(inventory.getDynamicChildren());
+                Optional<Widget> itemCheck = items.stream().filter(widgetItem -> widgetItem.getItemId() == ItemID.ROYAL_SEED_POD).findFirst();
                 if (itemCheck.isPresent()) {
-                    WidgetItem item = itemCheck.get();
-                    client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", item.getId(), MenuAction.ITEM_FIRST_OPTION.getId(), item.getIndex(), inventory.getId());
+                    Widget item = itemCheck.get();
+                    client.invokeMenuAction("Commune", "<col=ff9040>Royal seed pod", 2, MenuAction.CC_OP.getId(), item.getIndex(), inventory.getId());
                 }
                 break;
             case ROW_GRAND_EXCHANGE:
