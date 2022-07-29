@@ -1,6 +1,6 @@
 //this works
 
-import ProjectVersions.openosrsVersion
+import ProjectVersions.unethicaliteVersion
 
 buildscript {
     repositories {
@@ -74,10 +74,10 @@ subprojects {
         implementation(group = "org.projectlombok", name = "lombok", version = "1.18.12")
         implementation(group = "org.pushing-pixels", name = "radiance-substance", version = "2.5.1")
 
-        compileOnly("com.openosrs:runelite-api:$openosrsVersion+")
-        compileOnly("com.openosrs.rs:runescape-api:$openosrsVersion+")
-        compileOnly("com.openosrs:runelite-client:$openosrsVersion+")
-        compileOnly("com.openosrs:http-api:$openosrsVersion+")
+        compileOnly("net.unethicalite:http-api:$unethicaliteVersion+")
+        compileOnly("net.unethicalite:runelite-api:$unethicaliteVersion+")
+        compileOnly("net.unethicalite:runelite-client:$unethicaliteVersion+")
+        compileOnly("net.unethicalite.rs:runescape-api:$unethicaliteVersion+")
 
         //compileOnly(Libraries.guice)
         //compileOnly(Libraries.javax)
