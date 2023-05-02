@@ -122,26 +122,4 @@ public interface AutoLogHopConfig extends Config
             keyName = "skulledOnly",
             name = "Skulled Players Only",
             description = "Only triggers on skulled players.",
-            position = 20,
-            section = title
-    )
-    default boolean skulledOnly()
-    {
-        return false;
-    }
-/*
-    @ConfigItem(
-            keyName = "deadmanSkulls",
-            name = "Include Deadman Skulls",
-            description = "Include deadman skulls.",
-            position = 22,
-            section = title,
-            hidden = true,
-            unhide = "skulledOnly"
-    )
-    default boolean deadmanSkulls()
-    {
-        return false;
-    }
-*/
-}
+            position = 20
