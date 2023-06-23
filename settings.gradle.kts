@@ -29,6 +29,8 @@ include(":soxs-autoclicker")
 include(":soxs-autologhop")
 include(":soxs-autorun")
 
+//include(":soxs-disablenotifications")
+
 for (project in rootProject.children) {
     project.apply {
         projectDir = file(name)

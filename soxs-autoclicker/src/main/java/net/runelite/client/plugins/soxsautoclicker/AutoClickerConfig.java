@@ -135,7 +135,7 @@ public interface AutoClickerConfig extends Config
             keyName = "chinBreakHandler",
             name = "ChinBreakHandler",
             description = "Enable Chin Break Handler",
-            position = 14,
+            position = 15,
             section = clickerConfig
     )
     default boolean chinBreakHandler()
@@ -400,6 +400,7 @@ public interface AutoClickerConfig extends Config
         return 20000;
     }
 
+
     @Range(
             min = 5,
             max = 9
@@ -431,5 +432,120 @@ public interface AutoClickerConfig extends Config
     {
         return 8;
     }
+
+    @ConfigItem(
+            keyName = "minimumWaitBetweenAFK",
+            name = "Minimum Wait Between AFK (ms)",
+            description = "Minimum amount of time to wait before going AFK again.",
+            position = 56,
+            section = afkDelayTitle
+    )
+    default int minimumWaitBetweenAFK()
+    {
+        return 60000;
+    }
+
+
+
+    @ConfigSection(
+            keyName = "fatigueTitle",
+            name = "Fatigue Settings",
+            description = "",
+            position = 69
+    )
+    String fatigueTitle = "Fatigue Settings";
+
+    @ConfigItem(
+            keyName = "useFatigue",
+            name = "Enable Fatigue",
+            description = "Decreases clicker efficiency over time.",
+            position = 70,
+            section = fatigueTitle
+    )
+    default boolean useFatigue()
+    {
+        return false;
+    }
+
+    @Range(
+            min = 0,
+            max = 99
+    )
+    @ConfigItem(
+            keyName = "frequencyFatigue",
+            name = "Increase Frequency (%)",
+            description = "% chance to increase the amount of fatigue.",
+            position = 71,
+            section = fatigueTitle
+    )
+    default int frequencyFatigue()
+    {
+        return 1;
+    }
+
+    @Range(
+            min = 0,
+            max = 99
+    )
+    @ConfigItem(
+            keyName = "resetFatigue",
+            name = "Reset Chance (%)",
+            description = "% chance to reset fatigue to 0.",
+            position = 72,
+            section = fatigueTitle
+    )
+    default int resetFatigue()
+    {
+        return 1;
+    }
+
+    @ConfigItem(
+            keyName = "minFatigue",
+            name = "Minimum Fatigue (ms)",
+            description = "Minimum amount to increase the fatigue delay by.",
+            position = 73,
+            section = fatigueTitle
+    )
+    default int minFatigue()
+    {
+        return 1;
+    }
+
+    @ConfigItem(
+            keyName = "maxFatigue",
+            name = "Maximum Fatigue (ms)",
+            description = "Maximum amount to increase the fatigue delay by.",
+            position = 74,
+            section = fatigueTitle
+    )
+    default int maxFatigue()
+    {
+        return 10;
+    }
+
+    @ConfigItem(
+            keyName = "targetFatigue",
+            name = "Fatigue Target",
+            description = "",
+            position = 75,
+            section = fatigueTitle
+    )
+    default int targetFatigue()
+    {
+        return 5;
+    }
+
+    @ConfigItem(
+            keyName = "deviationFatigue",
+            name = "Fatigue Deviation",
+            description = "",
+            position = 76,
+            section = fatigueTitle
+    )
+    default int deviationFatigue()
+    {
+        return 4;
+    }
+
 
 }

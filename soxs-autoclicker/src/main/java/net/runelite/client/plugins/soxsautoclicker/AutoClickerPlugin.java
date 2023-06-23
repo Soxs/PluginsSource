@@ -81,6 +81,8 @@ public class AutoClickerPlugin extends Plugin {
     private Point lastPointBeforeBreak = null;
 
     public int lastAFK = 0;
+    public long lastAFKTimestamp = 0;
+    public int fatigue = 0;
 
     @Provides
     AutoClickerConfig getConfig(ConfigManager configManager) {
@@ -179,6 +181,8 @@ public class AutoClickerPlugin extends Plugin {
         public void hotkeyPressed() {
             run = !run;
 
+            fatigue = 0;
+
             if (!run) {
                 breakHandler.stopPlugin(getClickerPlugin());
                 inputDisabled = false;
@@ -224,13 +228,24 @@ public class AutoClickerPlugin extends Plugin {
                         continue;
                     }
 
-                    if (random.nextInt(100) < config.frequencyAFK()) {
-                        try {
-                            Thread.sleep(lastAFK = randWeightedInt(config.minDelayAFK(), config.maxDelayAFK(), config.weightSkewAFK(), config.weightBiasAFK()));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    if ((System.currentTimeMillis() - lastAFKTimestamp) >= config.minimumWaitBetweenAFK()) {
+                        if (random.nextInt(100) < config.frequencyAFK()) {
+                            try {
+                                Thread.sleep(lastAFK = randWeightedInt(config.minDelayAFK(), config.maxDelayAFK(), config.weightSkewAFK(), config.weightBiasAFK()));
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            lastAFK = 0;
+                            lastAFKTimestamp = System.currentTimeMillis();
                         }
-                        lastAFK = 0;
+                    }
+
+                    if (config.useFatigue()) {
+                        if (random.nextInt(100) < config.resetFatigue()) {
+                            fatigue = 0;
+                        } else if (random.nextInt(100) < config.frequencyFatigue()) {
+                            fatigue += getFatigueDelay();
+                        }
                     }
 
                     if (client.getGameState() == GameState.LOGGED_IN) {
@@ -301,14 +316,26 @@ public class AutoClickerPlugin extends Plugin {
     };
 
     public long getBetweenClicksDelay() {
-        return config.weightedDistribution() ?
+        return (config.weightedDistribution() ?
                 (long) clamp((-Math.log(Math.abs(random.nextGaussian()))) * config.deviation() + config.target())
                 :
-                (long) clamp(Math.round(random.nextGaussian() * config.deviation() + config.target()));
+                (long) clamp(Math.round(random.nextGaussian() * config.deviation() + config.target()))) + fatigue;
     }
+
+    public long getFatigueDelay() {
+        return (config.weightedDistribution() ?
+                (long) clampFatigue((-Math.log(Math.abs(random.nextGaussian()))) * config.deviationFatigue() + config.targetFatigue())
+                :
+                (long) clampFatigue(Math.round(random.nextGaussian() * config.deviationFatigue() + config.targetFatigue())));
+    }
+
 
     private double clamp(double val) {
         return Math.max(config.minDelay(), Math.min(config.maxDelay(), val));
+    }
+
+    private double clampFatigue(double val) {
+        return Math.max(config.minFatigue(), Math.min(config.maxFatigue(), val));
     }
 
     public void click(Point p) {

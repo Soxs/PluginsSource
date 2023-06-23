@@ -74,6 +74,8 @@ subprojects {
         implementation(group = "org.projectlombok", name = "lombok", version = "1.18.12")
         implementation(group = "org.pushing-pixels", name = "radiance-substance", version = "2.5.1")
 
+        implementation(group = "org.reflections", name = "reflections", version = "0.10.2")
+
         compileOnly("com.openosrs:runelite-api:$openosrsVersion+")
         compileOnly("com.openosrs.rs:runescape-api:$openosrsVersion+")
         compileOnly("com.openosrs:runelite-client:$openosrsVersion+")

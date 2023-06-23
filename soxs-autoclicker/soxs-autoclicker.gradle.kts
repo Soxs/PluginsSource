@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.2.1"
+version = "0.2.2"
 
 project.extra["PluginName"] = "Soxs' AutoClicker"
 project.extra["PluginDescription"] = "Soxs' Autoclicker, highly configurable & supports chin break handler."
